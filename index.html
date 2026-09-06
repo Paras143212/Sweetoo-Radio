@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sweetoo Radio - Live World Music</title>
+    
+    <!-- PWA (Mobile App) Links -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#b58ce8">
+    
+    <style>
+        /* Modern Pastel Theme */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            padding: 20px; 
+            background-color: #f4edfa; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 90vh;
+            margin: 0;
+        }
+        .radio-container { 
+            width: 100%;
+            max-width: 400px; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 25px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+        }
+        
+        /* Sweetoo Header Logo Styling (With 42% Border Radius) */
+        .header-logo {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .header-logo img {
+            width: 220px; 
+            height: auto; 
+            border-radius: 42%; /* White corners ko hatane ke liye */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        label {
+            font-weight: bold;
+            color: #555;
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        select { 
+            width: 100%; 
+            padding: 12px; 
+            margin-bottom: 20px; 
+            border-radius: 12px; 
+            border: 1px solid #ddd; 
+            font-size: 15px; 
+            background-color: #fcfcfc;
+            cursor: pointer;
+            outline: none;
+            transition: 0.3s;
+        }
+        select:focus {
+            border-color: #b58ce8;
+            box-shadow: 0 0 5px rgba(181, 140, 232, 0.5);
+        }
+        select:disabled {
+            background-color: #f0f0f0;
+            cursor: not-allowed;
+            color: #999;
+        }
+        
+        /* Playing Station Logo Container */
+        .logo-container {
+            text-align: center;
+            margin: 20px 0;
+            min-height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #stationLogo {
+            width: 120px; 
+            height: 120px; 
+            border-radius: 50%; 
+            object-fit: contain; 
+            display: none; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background-color: #fff;
+            padding: 5px;
+            border: 2px solid #f4edfa;
+        }
+        audio {
+            width: 100%;
+            border-radius: 30px;
+            outline: none;
+            background-color: #f4edfa;
+        }
+    </style>
+</head>
+<body>
+
+<div class="radio-container">
+    
+    <!-- Header: Sweetoo Radio Logo -->
+    <div class="header-logo">
+        <img src="App image.png" alt="Sweetoo Radio Logo">
+    </div>
+    
+    <!-- 1. Country Select Dropdown -->
+    <label for="countrySelect">🌍 1. Choose a Country:</label>
+    <select id="countrySelect">
+        <option value="">⏳ Loading countries...</option>
+    </select>
+
+    <!-- 2. Station Select Dropdown -->
+    <label for="stationSelect">📻 2. Choose a Station:</label>
+    <select id="stationSelect" disabled>
+        <option value="">🔒 Select a country first</option>
+    </select>
+
+    <!-- 3. Playing Station Logo -->
+    <div class="logo-container">
+        <img id="stationLogo" src="" alt="Radio Station Logo">
+    </div>
+
+    <!-- 4. Audio Player -->
+    <audio id="radioPlayer" controls></audio>
+</div>
+
+<!-- Radio Player Logic Script -->
+<script>
+    const countrySelect = document.getElementById('countrySelect');
+    const stationSelect = document.getElementById('stationSelect');
+    const radioPlayer = document.getElementById('radioPlayer');
+    const stationLogo = document.getElementById('stationLogo');
+
+    // 🚩 Convert Country Code to Emoji Flag
+    function getFlagEmoji(countryCode) {
+        if (!countryCode) return '🌍';
+        const codePoints = countryCode
+            .toUpperCase()
+            .split('')
+            .map(char => 127397 + char.charCodeAt());
+        return String.fromCodePoint(...codePoints);
+    }
+
+    // API 1: Fetch Countries
+    function loadCountries() {
+        fetch('https://de1.api.radio-browser.info/json/countries')
+            .then(response => response.json())
+            .then(data => {
+                countrySelect.innerHTML = '<option value="">-- Select a Country --</option>';
+                data.forEach(country => {
+                    if(country.name && country.stationcount > 0) {
+                        const option = document.createElement('option');
+                        option.value = country.name;
+                        
+                        const flag = getFlagEmoji(country.iso_3166_1);
+                        option.text = `${flag} ${country.name} (${country.stationcount})`;
+                        countrySelect.appendChild(option);
+                    }
+                });
+            })
+            .catch(error => {
+                countrySelect.innerHTML = '<option value="">❌ Error loading data</option>';
+            });
+    }
+
+    // API 2: Fetch Stations by Selected Country
+    countrySelect.addEventListener('change', function() {
+        const selectedCountry = this.value;
+
+        if (selectedCountry) {
+            stationSelect.disabled = false;
+            stationSelect.innerHTML = '<option value="">⏳ Loading stations...</option>';
+            
+            stationLogo.style.display = 'none';
+            radioPlayer.pause();
+            radioPlayer.src = "";
+
+            fetch(`https://de1.api.radio-browser.info/json/stations/bycountry/${encodeURIComponent(selectedCountry)}`)
+                .then(response => response.json())
+                .then(stations => {
+                    stationSelect.innerHTML = '<option value="">-- Select a Station --</option>';
+                    
+                    stations.forEach(station => {
+                        if (station.name && station.url_resolved) {
+                            const option = document.createElement('option');
+                            option.value = station.url_resolved;
+                            option.text = station.name;
+                            
+                            option.setAttribute('data-logo', station.favicon); 
+                            option.setAttribute('data-name', station.name);
+                            
+                            stationSelect.appendChild(option);
+                        }
+                    });
+                })
+                .catch(error => {
+                    stationSelect.innerHTML = '<option value="">❌ Error loading stations</option>';
+                });
+        } else {
+            stationSelect.innerHTML = '<option value="">🔒 Select a country first</option>';
+            stationSelect.disabled = true;
+            stationLogo.style.display = 'none';
+        }
+    });
+
+    // 3. Play Station & Show Logo
+    stationSelect.addEventListener('change', function() {
+        const streamUrl = this.value;
+        const selectedOption = this.options[this.selectedIndex];
+        
+        const logoUrl = selectedOption.getAttribute('data-logo');
+        const stationName = selectedOption.getAttribute('data-name');
+
+        if (streamUrl) {
+            radioPlayer.src = streamUrl;
+            radioPlayer.play();
+
+            // Smart Auto-Logo Generator agar asli logo na ho
+            if (logoUrl && logoUrl.trim() !== "") {
+                stationLogo.src = logoUrl;
+            } else {
+                stationLogo.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(stationName)}&background=random&color=fff&size=150`; 
+            }
+            stationLogo.style.display = 'block'; 
+        }
+    });
+
+    // Start App
+    window.onload = loadCountries;
+</script>
+
+<!-- PWA Service Worker Script -->
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(registration => {
+                    console.log('Sweetoo Radio PWA ServiceWorker successfully registered! 😎', registration.scope);
+                })
+                .catch(error => {
+                    console.log('ServiceWorker registration failed:', error);
+                });
+        });
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "Sweetoo Radio",
+  "short_name": "Sweetoo",
+  "description": "Live World Music & Radio",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4edfa",
+  "theme_color": "#b58ce8",
+  "icons": [
+    {
+      "src": "App image.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "App image.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
