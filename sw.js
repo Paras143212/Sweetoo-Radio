@@ -1,10 +1,10 @@
-const CACHE_NAME = 'sweetoo-radio-v2'; // Yahan humne v1 ko v2 kar diya hai
+const CACHE_NAME = 'sweetoo-radio-v2'; // Updated to v2 to force a cache refresh
 const urlsToCache = [
   './index.html',
   './App image.png'
 ];
 
-// Install Service Worker
+// 1. Install Service Worker and Cache Files
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -12,17 +12,17 @@ self.addEventListener('install', event => {
         return cache.addAll(urlsToCache);
       })
   );
-  self.skipWaiting(); // Naye update ko turant force apply karein
+  self.skipWaiting(); // Force the new update to apply immediately
 });
 
-// Purane Cache (v1) ko delete karein
+// 2. Activate Service Worker and Delete Old Caches (e.g., v1)
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cache => {
           if (cache !== CACHE_NAME) {
-            console.log('Purana cache delete ho raha hai...');
+            console.log('Deleting old cache version:', cache);
             return caches.delete(cache);
           }
         })
@@ -31,11 +31,12 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch Data
+// 3. Fetch Data (Serve from Cache if available, otherwise use Network)
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
+        // Return cached response if found, otherwise fetch from the internet
         return response || fetch(event.request);
       })
   );
