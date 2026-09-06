@@ -399,7 +399,7 @@
     });
 
     // -----------------------------------------
-    //  PLAYER LOGIC & APP BEHAVIOR
+    //  PLAYER LOGIC & BACKGROUND PLAY (MEDIA SESSION API)
     // -----------------------------------------
     
     function playStation(name, url, logo) {
@@ -408,15 +408,39 @@
         radioPlayer.src = url;
         radioPlayer.play();
 
-        if (logo && logo.trim() !== "") {
-            stationLogo.src = logo;
-        } else {
-            // Generate fallback logo if station has none
-            stationLogo.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=150`; 
-        }
-        
+        // Determine the logo to show (Original or Auto-generated)
+        const displayLogo = (logo && logo.trim() !== "") 
+            ? logo 
+            : `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=512`;
+
+        stationLogo.src = displayLogo;
         stationLogo.style.display = 'block';
         checkFavoriteStationStatus();
+
+        // --- MEDIA SESSION API FOR BACKGROUND PLAY & LOCK SCREEN ---
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: name,
+                artist: 'Sweetoo Radio',
+                album: 'Live World Music',
+                artwork: [
+                    { src: displayLogo, sizes: '96x96', type: 'image/png' },
+                    { src: displayLogo, sizes: '128x128', type: 'image/png' },
+                    { src: displayLogo, sizes: '192x192', type: 'image/png' },
+                    { src: displayLogo, sizes: '256x256', type: 'image/png' },
+                    { src: displayLogo, sizes: '384x384', type: 'image/png' },
+                    { src: displayLogo, sizes: '512x512', type: 'image/png' }
+                ]
+            });
+
+            navigator.mediaSession.setActionHandler('play', function() {
+                radioPlayer.play();
+            });
+
+            navigator.mediaSession.setActionHandler('pause', function() {
+                radioPlayer.pause();
+            });
+        }
     }
 
     favCountrySelect.addEventListener('change', function() {
