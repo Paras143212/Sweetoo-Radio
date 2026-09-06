@@ -44,24 +44,18 @@
         .header-logo img {
             width: 220px; 
             height: auto; 
-            border-radius: 42%; /* To remove AI square corners */
+            border-radius: 42%; /* To remove sharp white corners */
             box-shadow: 0 8px 20px rgba(0,0,0,0.12);
         }
 
         /* =========================================
            3. FORM & DROPDOWN STYLING
         ========================================= */
-        .header-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
         label {
             font-weight: bold;
             color: #555;
             font-size: 14px;
+            margin-bottom: 8px;
             display: block;
         }
         
@@ -87,6 +81,18 @@
             background-color: #f0f0f0;
             cursor: not-allowed;
             color: #999;
+        }
+
+        /* Flex container for Country Select and Favorite Button */
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .input-group select {
+            margin-bottom: 0; /* Override default margin */
+            flex-grow: 1;
         }
 
         /* =========================================
@@ -125,205 +131,55 @@
         /* =========================================
            5. CUSTOM BUTTONS (FAVORITE & INSTALL)
         ========================================= */
-        .fav-btn-small {
-            background: none;
-            border: 1px solid #ddd;
-            border-radius: 15px;
-            padding: 4px 10px;
-            font-size: 12px;
-            cursor: pointer;
-            display: none;
-            transition: 0.3s;
-            font-weight: bold;
-        }
-
-        .fav-btn-small.active {
-            background: #fff0f1;
-            border-color: #ff4757;
-            color: #ff4757;
-        }
-
+        
+        /* Favorite Station Button */
         #favBtn {
             margin-top: 15px;
             padding: 8px 15px;
             border-radius: 20px;
             border: 1px solid #ddd;
-            background: white;Here is the updated, fully functional code. I have rewritten all the code comments and text into standard global English and added a feature to save your favorite countries. 
-
-The new "Favorite Countries" functionality uses a heart icon button next to the country dropdown and stores the data in your browser's local storage just like the favorite stations.
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sweetoo Radio - Live World Music</title>
-    
-    <!-- PWA (Mobile App) Links -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#b58ce8">
-    
-    <style>
-        /* =========================================
-           1. MODERN PASTEL THEME (GLOBAL STYLES)
-        ========================================= */
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            padding: 20px; 
-            background-color: #f4edfa; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 90vh;
-            margin: 0;
-        }
-        
-        .radio-container { 
-            width: 100%;
-            max-width: 400px; 
-            background: white; 
-            padding: 30px; 
-            border-radius: 25px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
-        }
-        
-        /* =========================================
-           2. HEADER LOGO STYLING
-        ========================================= */
-        .header-logo {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        
-        .header-logo img {
-            width: 220px; 
-            height: auto; 
-            border-radius: 42%;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-        }
-
-        /* =========================================
-           3. FORM & DROPDOWN STYLING
-        ========================================= */
-        label {
-            font-weight: bold;
-            color: #555;
-            font-size: 14px;
-            margin-bottom: 8px;
-            display: block;
-        }
-        
-        select { 
-            width: 100%; 
-            padding: 12px; 
-            margin-bottom: 20px; 
-            border-radius: 12px; 
-            border: 1px solid #ddd; 
-            font-size: 15px; 
-            background-color: #fcfcfc;
-            cursor: pointer;
-            outline: none;
-            transition: 0.3s;
-        }
-        
-        select:focus {
-            border-color: #b58ce8;
-            box-shadow: 0 0 5px rgba(181, 140, 232, 0.5);
-        }
-        
-        select:disabled {
-            background-color: #f0f0f0;
-            cursor: not-allowed;
-            color: #999;
-        }
-
-        /* Flex row for country select and favorite button */
-        .flex-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .flex-row select {
-            margin-bottom: 0;
-            flex: 1;
-        }
-
-        /* =========================================
-           4. STATION LOGO & AUDIO PLAYER
-        ========================================= */
-        .logo-container {
-            text-align: center;
-            margin: 20px 0;
-            min-height: 120px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
-        
-        #stationLogo {
-            width: 120px; 
-            height: 120px; 
-            border-radius: 50%; 
-            object-fit: contain; 
-            display: none; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            background-color: #fff;
-            padding: 5px;
-            border: 2px solid #f4edfa;
-        }
-        
-        audio {
-            width: 100%;
-            border-radius: 30px;
-            outline: none;
-            background-color: #f4edfa;
-            margin-top: 15px;
-        }
-
-        /* =========================================
-           5. CUSTOM BUTTONS (FAVORITE & INSTALL)
-        ========================================= */
-        #favStationBtn {
-            margin-top: 15px;
-            padding: 8px 15px;
-            border-radius: 20px;
-            border: 1px solid #ddd;
             background: white;
             cursor: pointer;
             font-weight: bold;
             font-size: 14px;
             transition: 0.3s;
-            display: none; /* Default hidden */
+            display: none; /* Hidden by default until station plays */
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         
-        #favStationBtn.saved {
+        #favBtn.saved {
             border-color: #ff4757;
             color: #ff4757;
             background: #fff0f1;
         }
 
-        .icon-btn {
-            padding: 0 15px;
-            border-radius: 12px;
-            border: 1px solid #ddd;
+        /* Favorite Country Icon Button */
+        .fav-icon-btn {
             background: white;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 0 15px;
             cursor: pointer;
             font-size: 18px;
             transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .fav-icon-btn:hover {
+            background: #f9f9f9;
         }
 
-        .icon-btn.saved {
+        .fav-icon-btn.saved {
             border-color: #ff4757;
             color: #ff4757;
             background: #fff0f1;
         }
 
+        /* Install App Button */
         #installAppBtn {
-            display: none; /* Shown by JS when PWA is ready */
+            display: none; /* JS will show this if app is installable */
             background-color: #b58ce8;
             color: white;
             border: none;
@@ -342,7 +198,7 @@ The new "Favorite Countries" functionality uses a heart icon button next to the 
             background-color: #9b72d2;
         }
         
-        /* Divider Styling */
+        /* Section Divider */
         .divider {
             text-align: center;
             font-size: 12px;
@@ -351,6 +207,7 @@ The new "Favorite Countries" functionality uses a heart icon button next to the 
             border-bottom: 1px solid #eee;
             line-height: 0.1em;
         }
+        
         .divider span {
             background: #fff;
             padding: 0 10px;
@@ -370,25 +227,25 @@ The new "Favorite Countries" functionality uses a heart icon button next to the 
     <button id="installAppBtn">📲 Install Sweetoo App</button>
     
     <!-- 3. Favorites Section -->
+    <label for="favCountrySelect">🌍 Favorite Countries:</label>
+    <select id="favCountrySelect">
+        <option value="">No favorite countries saved 🤍</option>
+    </select>
+
     <label for="favSelect">⭐ Favorite Stations:</label>
     <select id="favSelect">
-        <option value="">No favorite stations yet 🤍</option>
+        <option value="">No favorite stations saved 🤍</option>
     </select>
 
-    <label for="favCountrySelect">⭐ Favorite Countries:</label>
-    <select id="favCountrySelect">
-        <option value="">No favorite countries yet 🤍</option>
-    </select>
+    <div class="divider"><span>OR BROWSE</span></div>
 
-    <div class="divider"><span>OR BROWSE ALL</span></div>
-
-    <!-- 4. Country Select Dropdown & Favorite Button -->
+    <!-- 4. Country Select Dropdown & Favorite Icon -->
     <label for="countrySelect">🌍 Choose a Country:</label>
-    <div class="flex-row">
+    <div class="input-group">
         <select id="countrySelect">
             <option value="">⏳ Loading countries...</option>
         </select>
-        <button id="favCountryBtn" class="icon-btn" title="Save Country" style="display:none;">🤍</button>
+        <button id="favCountryBtn" class="fav-icon-btn" title="Save Country" disabled>🤍</button>
     </div>
 
     <!-- 5. Station Select Dropdown -->
@@ -397,10 +254,10 @@ The new "Favorite Countries" functionality uses a heart icon button next to the 
         <option value="">🔒 Select a country first</option>
     </select>
 
-    <!-- 6. Playing Station Logo & Favorite Station Button -->
+    <!-- 6. Playing Station Logo & Save Station Button -->
     <div class="logo-container">
         <img id="stationLogo" src="" alt="Radio Station Logo">
-        <button id="favStationBtn">🤍 Save Station</button>
+        <button id="favBtn">🤍 Save Station</button>
     </div>
 
     <!-- 7. Audio Player -->
@@ -411,6 +268,7 @@ The new "Favorite Countries" functionality uses a heart icon button next to the 
      JAVASCRIPT: RADIO LOGIC & FAVORITES
 ========================================= -->
 <script>
+    // Document Elements
     const countrySelect = document.getElementById('countrySelect');
     const stationSelect = document.getElementById('stationSelect');
     const favSelect = document.getElementById('favSelect');
@@ -418,21 +276,28 @@ The new "Favorite Countries" functionality uses a heart icon button next to the 
     
     const radioPlayer = document.getElementById('radioPlayer');
     const stationLogo = document.getElementById('stationLogo');
-    const favStationBtn = document.getElementById('favStationBtn');
+    
+    const favBtn = document.getElementById('favBtn');
     const favCountryBtn = document.getElementById('favCountryBtn');
 
-    // Load favorites from LocalStorage
-    let favStations = JSON.parse(localStorage.getItem('sweetoo_favorites')) || [];
-    let favCountries = JSON.parse(localStorage.getItem('sweetoo_fav_countries')) || [];
+    // Local Storage State Variables
+    let favoriteStations = JSON.parse(localStorage.getItem('sweetoo_favorites')) || [];
+    let favoriteCountries = JSON.parse(localStorage.getItem('sweetoo_fav_countries')) || [];
+    
     let currentStation = null; 
+    let currentCountry = null;
 
-    // Update Station Favorites Dropdown
+    // -----------------------------------------
+    //  FAVORITE DROPDOWN UPDATERS
+    // -----------------------------------------
+    
     function updateFavStationDropdown() {
-        if (favStations.length === 0) {
-            favSelect.innerHTML = '<option value="">No favorite stations yet 🤍</option>';
+        if (favoriteStations.length === 0) {
+            favSelect.innerHTML = '<option value="">No favorite stations saved 🤍</option>';
         } else {
             favSelect.innerHTML = '<option value="">⭐ Select a Favorite Station</option>';
-            favStations.forEach((fav, index) => {
+            
+            favoriteStations.forEach((fav, index) => {
                 const option = document.createElement('option');
                 option.value = index; 
                 option.text = fav.name;
@@ -441,47 +306,52 @@ The new "Favorite Countries" functionality uses a heart icon button next to the 
         }
     }
 
-    // Update Country Favorites Dropdown
     function updateFavCountryDropdown() {
-        if (favCountries.length === 0) {
-            favCountrySelect.innerHTML = '<option value="">No favorite countries yet 🤍</option>';
+        if (favoriteCountries.length === 0) {
+            favCountrySelect.innerHTML = '<option value="">No favorite countries saved 🤍</option>';
         } else {
-            favCountrySelect.innerHTML = '<option value="">⭐ Select a Favorite Country</option>';
-            favCountries.forEach((country) => {
+            favCountrySelect.innerHTML = '<option value="">🌍 Select a Favorite Country</option>';
+            
+            favoriteCountries.forEach((country) => {
                 const option = document.createElement('option');
                 option.value = country.name; 
-                option.text = country.text; // Includes the flag emoji
+                option.text = country.text;
                 favCountrySelect.appendChild(option);
             });
         }
     }
 
-    // Check if the current station is saved
-    function checkStationFavoriteStatus() {
+    // -----------------------------------------
+    //  CHECK FAVORITE STATUS
+    // -----------------------------------------
+    
+    function checkFavoriteStationStatus() {
         if (!currentStation) return;
         
-        const isSaved = favStations.some(f => f.url === currentStation.url);
+        const isSaved = favoriteStations.some(f => f.url === currentStation.url);
         
         if (isSaved) {
-            favStationBtn.innerHTML = '❤️ Station Saved';
-            favStationBtn.classList.add('saved');
+            favBtn.innerHTML = '❤️ Station Saved';
+            favBtn.classList.add('saved');
         } else {
-            favStationBtn.innerHTML = '🤍 Save Station';
-            favStationBtn.classList.remove('saved');
+            favBtn.innerHTML = '🤍 Save Station';
+            favBtn.classList.remove('saved');
         }
-        favStationBtn.style.display = 'inline-block';
+        
+        favBtn.style.display = 'block';
     }
 
-    // Check if the current country is saved
-    function checkCountryFavoriteStatus() {
-        const selectedCountry = countrySelect.value;
-        if (!selectedCountry) {
-            favCountryBtn.style.display = 'none';
+    function checkFavoriteCountryStatus() {
+        if (!currentCountry || !currentCountry.name) {
+            favCountryBtn.disabled = true;
+            favCountryBtn.innerHTML = '🤍';
+            favCountryBtn.classList.remove('saved');
             return;
         }
         
-        favCountryBtn.style.display = 'block';
-        const isSaved = favCountries.some(c => c.name === selectedCountry);
+        favCountryBtn.disabled = false;
+        
+        const isSaved = favoriteCountries.some(c => c.name === currentCountry.name);
         
         if (isSaved) {
             favCountryBtn.innerHTML = '❤️';
@@ -492,83 +362,86 @@ The new "Favorite Countries" functionality uses a heart icon button next to the 
         }
     }
 
-    // Save/Remove Favorite Station
-    favStationBtn.addEventListener('click', () => {
+    // -----------------------------------------
+    //  FAVORITE BUTTON CLICK EVENTS
+    // -----------------------------------------
+    
+    favBtn.addEventListener('click', () => {
         if (!currentStation) return;
         
-        const existingIndex = favStations.findIndex(f => f.url === currentStation.url);
+        const existingIndex = favoriteStations.findIndex(f => f.url === currentStation.url);
         
         if (existingIndex > -1) {
-            favStations.splice(existingIndex, 1); // Remove if already saved
+            favoriteStations.splice(existingIndex, 1); // Remove if exists
         } else {
-            favStations.push(currentStation); // Add if new
+            favoriteStations.push(currentStation); // Add if new
         }
         
-        localStorage.setItem('sweetoo_favorites', JSON.stringify(favStations));
+        localStorage.setItem('sweetoo_favorites', JSON.stringify(favoriteStations));
         updateFavStationDropdown();
-        checkStationFavoriteStatus();
+        checkFavoriteStationStatus();
     });
 
-    // Save/Remove Favorite Country
     favCountryBtn.addEventListener('click', () => {
-        const selectedCountryName = countrySelect.value;
-        if (!selectedCountryName) return;
-
-        const selectedCountryText = countrySelect.options[countrySelect.selectedIndex].text;
-        const existingIndex = favCountries.findIndex(c => c.name === selectedCountryName);
-
+        if (!currentCountry) return;
+        
+        const existingIndex = favoriteCountries.findIndex(c => c.name === currentCountry.name);
+        
         if (existingIndex > -1) {
-            favCountries.splice(existingIndex, 1); // Remove if already saved
+            favoriteCountries.splice(existingIndex, 1); // Remove if exists
         } else {
-            favCountries.push({ name: selectedCountryName, text: selectedCountryText }); // Add if new
+            favoriteCountries.push(currentCountry); // Add if new
         }
-
-        localStorage.setItem('sweetoo_fav_countries', JSON.stringify(favCountries));
+        
+        localStorage.setItem('sweetoo_fav_countries', JSON.stringify(favoriteCountries));
         updateFavCountryDropdown();
-        checkCountryFavoriteStatus();
+        checkFavoriteCountryStatus();
     });
 
-    // Play Station Helper Function
+    // -----------------------------------------
+    //  PLAYER LOGIC & APP BEHAVIOR
+    // -----------------------------------------
+    
     function playStation(name, url, logo) {
         currentStation = { name, url, logo };
+        
         radioPlayer.src = url;
         radioPlayer.play();
 
         if (logo && logo.trim() !== "") {
             stationLogo.src = logo;
         } else {
-            // Generate a placeholder logo with the station's initials
-            stationLogo.src = `[https://ui-avatars.com/api/?name=$](https://ui-avatars.com/api/?name=$){encodeURIComponent(name)}&background=random&color=fff&size=150`; 
+            // Generate fallback logo if station has none
+            stationLogo.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=150`; 
         }
+        
         stationLogo.style.display = 'block';
-        checkStationFavoriteStatus();
+        checkFavoriteStationStatus();
     }
 
-    // Play from Favorite Stations Dropdown
+    favCountrySelect.addEventListener('change', function() {
+        if (this.value !== "") {
+            countrySelect.value = this.value;
+            countrySelect.dispatchEvent(new Event('change'));
+        }
+    });
+
     favSelect.addEventListener('change', function() {
         if (this.value !== "") {
-            const fav = favStations[this.value];
+            const fav = favoriteStations[this.value];
             playStation(fav.name, fav.url, fav.logo);
             
-            // Reset main dropdowns to avoid confusion
+            // Reset main dropdowns
             countrySelect.selectedIndex = 0;
-            favCountrySelect.selectedIndex = 0;
-            favCountryBtn.style.display = 'none';
+            currentCountry = null;
+            checkFavoriteCountryStatus();
+            
             stationSelect.innerHTML = '<option value="">🔒 Playing from Favorites</option>';
             stationSelect.disabled = true;
         }
     });
 
-    // Select Country from Favorite Countries Dropdown
-    favCountrySelect.addEventListener('change', function() {
-        if (this.value !== "") {
-            countrySelect.value = this.value;
-            // Manually trigger the change event to fetch stations for this country
-            countrySelect.dispatchEvent(new Event('change'));
-        }
-    });
-
-    // Helper: Convert Country Code to Emoji Flag
+    // Helper Function: Convert Country Code to Flag Emoji
     function getFlagEmoji(countryCode) {
         if (!countryCode) return '🌍';
         const codePoints = countryCode
@@ -578,16 +451,157 @@ The new "Favorite Countries" functionality uses a heart icon button next to the 
         return String.fromCodePoint(...codePoints);
     }
 
-    // API 1: Fetch All Countries
+    // -----------------------------------------
+    //  API FETCH OPERATIONS
+    // -----------------------------------------
+    
+    // API 1: Load All Countries
     function loadCountries() {
-        fetch('[https://de1.api.radio-browser.info/json/countries](https://de1.api.radio-browser.info/json/countries)')
+        fetch('https://de1.api.radio-browser.info/json/countries')
             .then(response => response.json())
             .then(data => {
                 countrySelect.innerHTML = '<option value="">-- Select a Country --</option>';
+                
                 data.forEach(country => {
                     if(country.name && country.stationcount > 0) {
                         const option = document.createElement('option');
                         option.value = country.name;
                         
                         const flag = getFlagEmoji(country.iso_3166_1);
-                        option.text = `${flag} ${country.name} (${
+                        option.text = `${flag} ${country.name} (${country.stationcount})`;
+                        
+                        countrySelect.appendChild(option);
+                    }
+                });
+            })
+            .catch(error => {
+                countrySelect.innerHTML = '<option value="">❌ Error loading data</option>';
+            });
+    }
+
+    // API 2: Load Stations by Selected Country
+    countrySelect.addEventListener('change', function() {
+        const selectedCountryName = this.value;
+        const selectedOption = this.options[this.selectedIndex];
+        
+        favSelect.selectedIndex = 0; // Reset favorite station dropdown
+
+        if (selectedCountryName) {
+            
+            currentCountry = {
+                name: selectedCountryName,
+                text: selectedOption.text
+            };
+            
+            checkFavoriteCountryStatus();
+
+            stationSelect.disabled = false;
+            stationSelect.innerHTML = '<option value="">⏳ Loading stations...</option>';
+            
+            fetch(`https://de1.api.radio-browser.info/json/stations/bycountry/${encodeURIComponent(selectedCountryName)}`)
+                .then(response => response.json())
+                .then(stations => {
+                    stationSelect.innerHTML = '<option value="">-- Select a Station --</option>';
+                    
+                    stations.forEach(station => {
+                        if (station.name && station.url_resolved) {
+                            const option = document.createElement('option');
+                            option.value = station.url_resolved;
+                            option.text = station.name;
+                            
+                            option.setAttribute('data-logo', station.favicon); 
+                            option.setAttribute('data-name', station.name);
+                            
+                            stationSelect.appendChild(option);
+                        }
+                    });
+                })
+                .catch(error => {
+                    stationSelect.innerHTML = '<option value="">❌ Error loading stations</option>';
+                });
+        } else {
+            currentCountry = null;
+            checkFavoriteCountryStatus();
+            
+            stationSelect.innerHTML = '<option value="">🔒 Select a country first</option>';
+            stationSelect.disabled = true;
+        }
+    });
+
+    // Play Station when selected from list
+    stationSelect.addEventListener('change', function() {
+        if(this.value) {
+            const selectedOption = this.options[this.selectedIndex];
+            playStation(
+                selectedOption.getAttribute('data-name'), 
+                this.value, 
+                selectedOption.getAttribute('data-logo')
+            );
+        }
+    });
+
+    // Initialize App on Load
+    window.onload = () => {
+        loadCountries();
+        updateFavStationDropdown(); 
+        updateFavCountryDropdown();
+    };
+</script>
+
+<!-- =========================================
+     JAVASCRIPT: PWA SERVICE WORKER & INSTALL
+========================================= -->
+<script>
+    // 1. Service Worker Registration
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(registration => {
+                    console.log('Sweetoo Radio PWA ServiceWorker successfully registered! 😎', registration.scope);
+                })
+                .catch(error => {
+                    console.log('ServiceWorker registration failed:', error);
+                });
+        });
+    }
+
+    // 2. Custom App Install Prompt Logic
+    let deferredPrompt;
+    const installAppBtn = document.getElementById('installAppBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevent default browser install popup
+        e.preventDefault();
+        
+        deferredPrompt = e;
+        
+        // Show our custom Install Button
+        installAppBtn.style.display = 'block';
+    });
+
+    installAppBtn.addEventListener('click', async () => {
+        if (deferredPrompt !== null) {
+            
+            // Show the actual browser install prompt
+            deferredPrompt.prompt();
+            
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            if (outcome === 'accepted') {
+                console.log('User installed Sweetoo Radio!');
+                installAppBtn.style.display = 'none';
+            }
+            
+            deferredPrompt = null;
+        }
+    });
+
+    // Hide button if the app is successfully installed
+    window.addEventListener('appinstalled', () => {
+        installAppBtn.style.display = 'none';
+        console.log('App is already installed');
+    });
+</script>
+
+</body>
+</html>
