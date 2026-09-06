@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sweetoo-radio-v2'; // Updated to v2 to force a cache refresh
+const CACHE_NAME = 'sweetoo-radio-v3'; // Updated to v3 to force a cache refresh
 const urlsToCache = [
   './index.html',
   './App image.png'
