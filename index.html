@@ -97,6 +97,26 @@
             outline: none;
             background-color: #f4edfa;
         }
+
+        /* PWA Install Button Styling */
+        #installAppBtn {
+            display: none; /* Default hidden rahega, JS ise show karega */
+            background-color: #b58ce8; 
+            color: white; 
+            border: none; 
+            padding: 12px 20px; 
+            border-radius: 12px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            width: 100%; 
+            margin-bottom: 20px; 
+            box-shadow: 0 4px 10px rgba(181, 140, 232, 0.4);
+            transition: 0.3s;
+        }
+        #installAppBtn:hover {
+            background-color: #9b72d2;
+        }
     </style>
 </head>
 <body>
@@ -107,6 +127,9 @@
     <div class="header-logo">
         <img src="App image.png" alt="Sweetoo Radio Logo">
     </div>
+
+    <!-- PWA Install Button -->
+    <button id="installAppBtn">📲 Install Sweetoo App</button>
     
     <!-- 1. Country Select Dropdown -->
     <label for="countrySelect">🌍 1. Choose a Country:</label>
@@ -234,8 +257,9 @@
     window.onload = loadCountries;
 </script>
 
-<!-- PWA Service Worker Script -->
+<!-- PWA Service Worker & Install Button Logic -->
 <script>
+    // 1. Service Worker Register Karna
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js')
@@ -247,6 +271,39 @@
                 });
         });
     }
+
+    // 2. Install Button Logic
+    let deferredPrompt;
+    const installAppBtn = document.getElementById('installAppBtn');
+
+    // Browser check karta hai ki PWA installable hai ya nahi
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // Default popup rokna
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        // Hamara button dikhana
+        installAppBtn.style.display = 'block';
+    });
+
+    // Button click par popup laana
+    installAppBtn.addEventListener('click', async () => {
+        if (deferredPrompt !== null) {
+            deferredPrompt.prompt(); // Browser ka install popup show karega
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                console.log('User ne Sweetoo Radio install kar liya!');
+                installAppBtn.style.display = 'none'; // Install hone ke baad button hata do
+            }
+            deferredPrompt = null;
+        }
+    });
+
+    // Agar app pehle se installed hai
+    window.addEventListener('appinstalled', () => {
+        installAppBtn.style.display = 'none';
+        console.log('App is already installed');
+    });
 </script>
 
 </body>
