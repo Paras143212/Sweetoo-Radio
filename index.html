@@ -37,6 +37,7 @@
 
     <!-- PWA (Mobile App) Links -->
     <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="App image.png" type="image/png"> <!-- Added missing Favicon -->
     <meta name="theme-color" content="#b58ce8">
     
     <style>
@@ -74,7 +75,7 @@
         .header-logo img {
             width: 220px; 
             height: auto; 
-            border-radius: 42%; /* To remove sharp white corners */
+            border-radius: 42%; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.12);
         }
 
@@ -110,10 +111,10 @@
         select:disabled {
             background-color: #f0f0f0;
             cursor: not-allowed;
-            color: #999;
+            color: #333; /* Darkened for better readability */
+            font-weight: bold;
         }
 
-        /* Flex container for Country Select and Favorite Button */
         .input-group {
             display: flex;
             gap: 10px;
@@ -121,7 +122,7 @@
         }
 
         .input-group select {
-            margin-bottom: 0; /* Override default margin */
+            margin-bottom: 0; 
             flex-grow: 1;
         }
 
@@ -159,7 +160,7 @@
         }
 
         /* =========================================
-           5. CUSTOM BUTTONS (FAVORITE & INSTALL)
+           5. CUSTOM BUTTONS
         ========================================= */
         
         /* Favorite Station Button */
@@ -173,7 +174,7 @@
             font-weight: bold;
             font-size: 14px;
             transition: 0.3s;
-            display: none; /* Hidden by default until station plays */
+            display: none; 
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         
@@ -209,7 +210,7 @@
 
         /* Install App Button */
         #installAppBtn {
-            display: none; /* JS will show this if app is installable */
+            display: none; 
             background-color: #b58ce8;
             color: white;
             border: none;
@@ -219,13 +220,33 @@
             font-weight: bold;
             cursor: pointer;
             width: 100%;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             box-shadow: 0 4px 10px rgba(181, 140, 232, 0.4);
             transition: 0.3s;
         }
         
         #installAppBtn:hover {
             background-color: #9b72d2;
+        }
+
+        /* Share App Button */
+        #shareAppBtn {
+            background-color: #2ed573;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(46, 213, 115, 0.4);
+            transition: 0.3s;
+        }
+        
+        #shareAppBtn:hover {
+            background-color: #26b360;
         }
         
         /* Section Divider */
@@ -249,7 +270,7 @@
         .ad-container {
             margin-top: 25px;
             text-align: center;
-            min-height: 250px; /* Prevents layout shifting for better SEO & UX */
+            min-height: 250px; 
             display: flex;
             justify-content: center;
             align-items: center;
@@ -268,8 +289,9 @@
         <img src="App image.png" alt="Sweetoo Radio Logo">
     </div>
 
-    <!-- 2. PWA Install Button -->
+    <!-- 2. PWA Install & Share Buttons -->
     <button id="installAppBtn">📲 Install Sweetoo App</button>
+    <button id="shareAppBtn">📢 Share with Friends</button>
     
     <!-- 3. Favorites Section -->
     <label for="favCountrySelect">🌍 Favorite Countries:</label>
@@ -330,7 +352,6 @@
      JAVASCRIPT: RADIO LOGIC & FAVORITES
 ========================================= -->
 <script>
-    // Document Elements
     const countrySelect = document.getElementById('countrySelect');
     const stationSelect = document.getElementById('stationSelect');
     const favSelect = document.getElementById('favSelect');
@@ -341,24 +362,28 @@
     
     const favBtn = document.getElementById('favBtn');
     const favCountryBtn = document.getElementById('favCountryBtn');
+    const shareAppBtn = document.getElementById('shareAppBtn');
 
-    // Local Storage State Variables
     let favoriteStations = JSON.parse(localStorage.getItem('sweetoo_favorites')) || [];
     let favoriteCountries = JSON.parse(localStorage.getItem('sweetoo_fav_countries')) || [];
     
     let currentStation = null; 
     let currentCountry = null;
 
-    // -----------------------------------------
-    //  FAVORITE DROPDOWN UPDATERS
-    // -----------------------------------------
-    
+    // --- Audio Player Error Handling ---
+    radioPlayer.addEventListener('error', function() {
+        alert("⚠️ This station is currently offline or unreachable. Please try another station.");
+        stationLogo.src = "";
+        stationLogo.style.display = 'none';
+        favBtn.style.display = 'none';
+    });
+
+    // --- FAVORITE DROPDOWN UPDATERS ---
     function updateFavStationDropdown() {
         if (favoriteStations.length === 0) {
             favSelect.innerHTML = '<option value="">No favorite stations saved 🤍</option>';
         } else {
             favSelect.innerHTML = '<option value="">⭐ Select a Favorite Station</option>';
-            
             favoriteStations.forEach((fav, index) => {
                 const option = document.createElement('option');
                 option.value = index; 
@@ -373,7 +398,6 @@
             favCountrySelect.innerHTML = '<option value="">No favorite countries saved 🤍</option>';
         } else {
             favCountrySelect.innerHTML = '<option value="">🌍 Select a Favorite Country</option>';
-            
             favoriteCountries.forEach((country) => {
                 const option = document.createElement('option');
                 option.value = country.name; 
@@ -383,15 +407,10 @@
         }
     }
 
-    // -----------------------------------------
-    //  CHECK FAVORITE STATUS
-    // -----------------------------------------
-    
+    // --- CHECK FAVORITE STATUS ---
     function checkFavoriteStationStatus() {
         if (!currentStation) return;
-        
         const isSaved = favoriteStations.some(f => f.url === currentStation.url);
-        
         if (isSaved) {
             favBtn.innerHTML = '❤️ Station Saved';
             favBtn.classList.add('saved');
@@ -399,7 +418,6 @@
             favBtn.innerHTML = '🤍 Save Station';
             favBtn.classList.remove('saved');
         }
-        
         favBtn.style.display = 'block';
     }
 
@@ -410,11 +428,8 @@
             favCountryBtn.classList.remove('saved');
             return;
         }
-        
         favCountryBtn.disabled = false;
-        
         const isSaved = favoriteCountries.some(c => c.name === currentCountry.name);
-        
         if (isSaved) {
             favCountryBtn.innerHTML = '❤️';
             favCountryBtn.classList.add('saved');
@@ -424,21 +439,15 @@
         }
     }
 
-    // -----------------------------------------
-    //  FAVORITE BUTTON CLICK EVENTS
-    // -----------------------------------------
-    
+    // --- FAVORITE BUTTON CLICK EVENTS ---
     favBtn.addEventListener('click', () => {
         if (!currentStation) return;
-        
         const existingIndex = favoriteStations.findIndex(f => f.url === currentStation.url);
-        
         if (existingIndex > -1) {
-            favoriteStations.splice(existingIndex, 1); // Remove if exists
+            favoriteStations.splice(existingIndex, 1);
         } else {
-            favoriteStations.push(currentStation); // Add if new
+            favoriteStations.push(currentStation);
         }
-        
         localStorage.setItem('sweetoo_favorites', JSON.stringify(favoriteStations));
         updateFavStationDropdown();
         checkFavoriteStationStatus();
@@ -446,31 +455,50 @@
 
     favCountryBtn.addEventListener('click', () => {
         if (!currentCountry) return;
-        
         const existingIndex = favoriteCountries.findIndex(c => c.name === currentCountry.name);
-        
         if (existingIndex > -1) {
-            favoriteCountries.splice(existingIndex, 1); // Remove if exists
+            favoriteCountries.splice(existingIndex, 1);
         } else {
-            favoriteCountries.push(currentCountry); // Add if new
+            favoriteCountries.push(currentCountry);
         }
-        
         localStorage.setItem('sweetoo_fav_countries', JSON.stringify(favoriteCountries));
         updateFavCountryDropdown();
         checkFavoriteCountryStatus();
     });
 
-    // -----------------------------------------
-    //  PLAYER LOGIC & BACKGROUND PLAY (MEDIA SESSION API)
-    // -----------------------------------------
-    
+    // --- SHARE LOGIC ---
+    shareAppBtn.addEventListener('click', async () => {
+        let shareText = 'Listen to live radio stations from around the world for free on Sweetoo Radio! No downloads needed.';
+        if (typeof currentStation !== 'undefined' && currentStation && currentStation.name) {
+            shareText = `I am listening to ${currentStation.name} on Sweetoo Radio! Tune in now for free 🎶🌍`;
+        }
+        const shareData = {
+            title: 'Sweetoo Radio - Live World Music',
+            text: shareText,
+            url: window.location.href
+        };
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+            } catch (err) {
+                console.log('User cancelled the share or error:', err);
+            }
+        } else {
+            try {
+                await navigator.clipboard.writeText(shareData.text + " " + shareData.url);
+                alert("📢 Link copied to clipboard! Share it with your friends.");
+            } catch (err) {
+                alert("Please copy this URL to share: " + window.location.href);
+            }
+        }
+    });
+
+    // --- PLAYER LOGIC (MEDIA SESSION API) ---
     function playStation(name, url, logo) {
         currentStation = { name, url, logo };
-        
         radioPlayer.src = url;
         radioPlayer.play();
 
-        // Determine the logo to show (Original or Auto-generated)
         const displayLogo = (logo && logo.trim() !== "") 
             ? logo 
             : `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=512`;
@@ -479,7 +507,6 @@
         stationLogo.style.display = 'block';
         checkFavoriteStationStatus();
 
-        // --- MEDIA SESSION API FOR BACKGROUND PLAY & LOCK SCREEN ---
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: name,
@@ -487,21 +514,11 @@
                 album: 'Live World Music',
                 artwork: [
                     { src: displayLogo, sizes: '96x96', type: 'image/png' },
-                    { src: displayLogo, sizes: '128x128', type: 'image/png' },
-                    { src: displayLogo, sizes: '192x192', type: 'image/png' },
-                    { src: displayLogo, sizes: '256x256', type: 'image/png' },
-                    { src: displayLogo, sizes: '384x384', type: 'image/png' },
                     { src: displayLogo, sizes: '512x512', type: 'image/png' }
                 ]
             });
-
-            navigator.mediaSession.setActionHandler('play', function() {
-                radioPlayer.play();
-            });
-
-            navigator.mediaSession.setActionHandler('pause', function() {
-                radioPlayer.pause();
-            });
+            navigator.mediaSession.setActionHandler('play', function() { radioPlayer.play(); });
+            navigator.mediaSession.setActionHandler('pause', function() { radioPlayer.pause(); });
         }
     }
 
@@ -517,7 +534,6 @@
             const fav = favoriteStations[this.value];
             playStation(fav.name, fav.url, fav.logo);
             
-            // Reset main dropdowns
             countrySelect.selectedIndex = 0;
             currentCountry = null;
             checkFavoriteCountryStatus();
@@ -527,106 +543,74 @@
         }
     });
 
-    // Helper Function: Convert Country Code to Flag Emoji
     function getFlagEmoji(countryCode) {
         if (!countryCode) return '🌍';
-        const codePoints = countryCode
-            .toUpperCase()
-            .split('')
-            .map(char => 127397 + char.charCodeAt());
+        const codePoints = countryCode.toUpperCase().split('').map(char => 127397 + char.charCodeAt());
         return String.fromCodePoint(...codePoints);
     }
 
-    // -----------------------------------------
-    //  API FETCH OPERATIONS
-    // -----------------------------------------
-    
-    // API 1: Load All Countries
+    // --- API FETCH OPERATIONS ---
     function loadCountries() {
         fetch('https://de1.api.radio-browser.info/json/countries')
             .then(response => response.json())
             .then(data => {
                 countrySelect.innerHTML = '<option value="">-- Select a Country --</option>';
-                
                 data.forEach(country => {
                     if(country.name && country.stationcount > 0) {
                         const option = document.createElement('option');
                         option.value = country.name;
-                        
-                        const flag = getFlagEmoji(country.iso_3166_1);
-                        option.text = `${flag} ${country.name} (${country.stationcount})`;
-                        
+                        option.text = `${getFlagEmoji(country.iso_3166_1)} ${country.name} (${country.stationcount})`;
                         countrySelect.appendChild(option);
                     }
                 });
             })
-            .catch(error => {
-                countrySelect.innerHTML = '<option value="">❌ Error loading data</option>';
-            });
+            .catch(error => { countrySelect.innerHTML = '<option value="">❌ Error loading data</option>'; });
     }
 
-    // API 2: Load Stations by Selected Country
+    // Load Stations by Selected Country (FIXED LIMIT TO PREVENT CRASH)
     countrySelect.addEventListener('change', function() {
         const selectedCountryName = this.value;
         const selectedOption = this.options[this.selectedIndex];
-        
-        favSelect.selectedIndex = 0; // Reset favorite station dropdown
+        favSelect.selectedIndex = 0;
 
         if (selectedCountryName) {
-            
-            currentCountry = {
-                name: selectedCountryName,
-                text: selectedOption.text
-            };
-            
+            currentCountry = { name: selectedCountryName, text: selectedOption.text };
             checkFavoriteCountryStatus();
-
             stationSelect.disabled = false;
             stationSelect.innerHTML = '<option value="">⏳ Loading stations...</option>';
             
-            fetch(`https://de1.api.radio-browser.info/json/stations/bycountry/${encodeURIComponent(selectedCountryName)}`)
+            // Limit API to top 300 popular stations to prevent browser hang
+            fetch(`https://de1.api.radio-browser.info/json/stations/bycountry/${encodeURIComponent(selectedCountryName)}?limit=300&order=clickcount&reverse=true`)
                 .then(response => response.json())
                 .then(stations => {
                     stationSelect.innerHTML = '<option value="">-- Select a Station --</option>';
-                    
                     stations.forEach(station => {
                         if (station.name && station.url_resolved) {
                             const option = document.createElement('option');
                             option.value = station.url_resolved;
                             option.text = station.name;
-                            
                             option.setAttribute('data-logo', station.favicon); 
                             option.setAttribute('data-name', station.name);
-                            
                             stationSelect.appendChild(option);
                         }
                     });
                 })
-                .catch(error => {
-                    stationSelect.innerHTML = '<option value="">❌ Error loading stations</option>';
-                });
+                .catch(error => { stationSelect.innerHTML = '<option value="">❌ Error loading stations</option>'; });
         } else {
             currentCountry = null;
             checkFavoriteCountryStatus();
-            
             stationSelect.innerHTML = '<option value="">🔒 Select a country first</option>';
             stationSelect.disabled = true;
         }
     });
 
-    // Play Station when selected from list
     stationSelect.addEventListener('change', function() {
         if(this.value) {
             const selectedOption = this.options[this.selectedIndex];
-            playStation(
-                selectedOption.getAttribute('data-name'), 
-                this.value, 
-                selectedOption.getAttribute('data-logo')
-            );
+            playStation(selectedOption.getAttribute('data-name'), this.value, selectedOption.getAttribute('data-logo'));
         }
     });
 
-    // Initialize App on Load
     window.onload = () => {
         loadCountries();
         updateFavStationDropdown(); 
@@ -638,51 +622,35 @@
      JAVASCRIPT: PWA SERVICE WORKER & INSTALL
 ========================================= -->
 <script>
-    // 1. Service Worker Registration
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js')
-                .then(registration => {
-                    console.log('Sweetoo Radio PWA ServiceWorker successfully registered! 😎', registration.scope);
-                })
-                .catch(error => {
-                    console.log('ServiceWorker registration failed:', error);
-                });
+                .then(registration => { console.log('Sweetoo Radio PWA ServiceWorker successfully registered! 😎', registration.scope); })
+                .catch(error => { console.log('ServiceWorker registration failed:', error); });
         });
     }
 
-    // 2. Custom App Install Prompt Logic
     let deferredPrompt;
     const installAppBtn = document.getElementById('installAppBtn');
 
     window.addEventListener('beforeinstallprompt', (e) => {
-        // Prevent default browser install popup
         e.preventDefault();
-        
         deferredPrompt = e;
-        
-        // Show our custom Install Button
         installAppBtn.style.display = 'block';
     });
 
     installAppBtn.addEventListener('click', async () => {
         if (deferredPrompt !== null) {
-            
-            // Show the actual browser install prompt
             deferredPrompt.prompt();
-            
             const { outcome } = await deferredPrompt.userChoice;
-            
             if (outcome === 'accepted') {
                 console.log('User installed Sweetoo Radio!');
                 installAppBtn.style.display = 'none';
             }
-            
             deferredPrompt = null;
         }
     });
 
-    // Hide button if the app is successfully installed
     window.addEventListener('appinstalled', () => {
         installAppBtn.style.display = 'none';
         console.log('App is already installed');
