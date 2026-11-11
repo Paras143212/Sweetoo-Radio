@@ -1,7 +1,7 @@
-const CACHE_NAME = 'sweetoo-radio-v7'; // Updated to v7 to force a cache refresh
+const CACHE_NAME = 'sweetoo-radio-v8'; // Bumped to v8 for the new fixes
 const urlsToCache = [
   './index.html',
-  './App image.png'
+  './App%20image.png' // Fixed space issue for smooth caching
 ];
 
 // 1. Install Service Worker and Cache Files
@@ -15,7 +15,7 @@ self.addEventListener('install', event => {
   self.skipWaiting(); // Force the new update to apply immediately
 });
 
-// 2. Activate Service Worker and Delete Old Caches (e.g., v1)
+// 2. Activate Service Worker and Delete Old Caches
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
